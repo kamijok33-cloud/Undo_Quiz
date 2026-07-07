@@ -127,6 +127,13 @@ body{
   letter-spacing:.03em;
 }
 
+.frame-note{
+  text-align:center;
+  font-size:11px;
+  color:#71828c;
+  margin-top:2px;
+}
+
 .question-text{
   font-family:'Shippori Mincho',serif;
   font-size:17px;
@@ -266,7 +273,7 @@ body{
 
   <div class="masthead">
     <h1>東京讃岐うどんクイズ</h1>
-    <p>Googleマップの空撮画像だけを見て、どのうどん屋さんか当てよう</p>
+    <p>Googleストリートビューだけを見て、どのうどん屋さんか当てよう</p>
   </div>
 
   <div class="quiz-body" id="quizBody">
@@ -280,10 +287,11 @@ body{
       <div class="frame-inner">
         <iframe id="mapFrame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
-      <div class="frame-caption">Googleマップ空撮画像（店名・住所は非表示）</div>
+      <div class="frame-caption">Googleストリートビュー（店名・住所は非表示）</div>
+      <div class="frame-note" id="frameNote">写真が表示されない場合は、その地点のストリートビュー画像が未提供です</div>
     </div>
 
-    <div class="question-text">この画像の場所にあるうどん屋さんは？</div>
+    <div class="question-text">この場所にあるうどん屋さんは？</div>
 
     <div class="choices" id="choices"></div>
 
@@ -322,7 +330,7 @@ const shops = [
   {name:"TOKYO SUNFLOWER IIDABASHI", lat:35.6992567, lng:139.7451017, area:"飯田橋", note:"本郷三丁目の店の2号店として2020年開店。店主は「おにやんま」出身。"},
   {name:"讃岐ブルース 飯田橋", lat:35.7004013, lng:139.7477125, area:"飯田橋", note:"熟成中の麺にブルースを聴かせる異色スタイル。松山の鍋焼きうどんも提供。"},
   {name:"讃岐 翔平", lat:35.6661269, lng:139.7510232, area:"西新橋", note:"元愛媛料亭勤務の店主が2024年開業の新鋭。伊吹いりこで出汁を取る。"},
-  {name:"自家製さぬきうどんと肉 甚三 大門店", lat:35.6548594, lng:139.7536088, area:"大門", note:"神保町「丸香」出身の店主が2016年開店。千葉産ブランド豚を使用。"},
+  {name:"自家製さぬきうどんと肉 甚三 大門店", lat:35.6548594, lng:139.7536088, area:"大門", note:"神保町の名店出身の店主が2016年開店。千葉産ブランド豚を使用。"},
   {name:"手打うどん いわしや 青山店", lat:35.6729861, lng:139.7231328, area:"青山一丁目", note:"香川で修行後、西宮で本店開業。極太・強コシの「剛麺」が名物。"},
   {name:"おにやんま 五反田本店", lat:35.6254264, lng:139.7239524, area:"五反田", note:"香川県丸亀市出身の大下氏が2010年創業。都内チェーン展開の元祖。"},
   {name:"かおりひめ", lat:35.6668471, lng:139.7594179, area:"新橋", note:"香川県・愛媛県共同アンテナショップ内の公認郷土料理店。"},
@@ -351,8 +359,8 @@ function buildChoices(correctIdx){
   return opts;
 }
 
-function mapUrl(lat,lng){
-  return "https://maps.google.com/maps?q=" + lat + "," + lng + "&z=18&t=k&output=embed";
+function streetViewUrl(lat,lng){
+  return "https://www.google.com/maps?layer=c&cbll=" + lat + "," + lng + "&cbp=12,0,,0,0&output=svembed";
 }
 
 function startQuiz(){
@@ -372,7 +380,7 @@ function renderQuestion(){
   document.getElementById('qCount').textContent = "問題 " + (qIndex+1) + " / " + order.length;
   document.getElementById('progressFill').style.width = ((qIndex+1)/order.length*100) + "%";
   document.getElementById('scorePill').textContent = score + " 点";
-  document.getElementById('mapFrame').src = mapUrl(shop.lat, shop.lng);
+  document.getElementById('mapFrame').src = streetViewUrl(shop.lat, shop.lng);
 
   const opts = buildChoices(shopIdx);
   const choicesEl = document.getElementById('choices');
