@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>東京讃岐うどんクイズ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+:root{
+  --noren:#22384C;
+  --noren-dark:#152531;
+  --washi:#F6F0E2;
+  --washi-dark:#EAE1CB;
+  --ink:#2B2620;
+  --ink-soft:#5C554A;
+  --hanko:#B8433D;
+  --hanko-dark:#8E312C;
+  --ok:#3F6B3B;
+  --ok-bg:#E4EEDF;
+  --ng:#B8433D;
+  --ng-bg:#F7E4E1;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  background:var(--washi);
+  font-family:'Noto Sans JP',sans-serif;
+  color:var(--ink);
+}
+
+.app{
+  max-width:640px;
+  margin:0 auto;
+  padding:28px 20px 60px;
+}
+
+.masthead{
+  background:var(--noren);
+  color:var(--washi);
+  padding:22px 24px 26px;
+  border-radius:4px;
+  position:relative;
+  margin-bottom:6px;
+}
+
+.masthead::after{
+  content:'';
+  display:block;
+  position:absolute;
+  left:0;right:0;bottom:-10px;
+  height:10px;
+  background:repeating-linear-gradient(90deg,var(--noren) 0 18px,transparent 18px 20px);
+}
+
+.masthead h1{
+  font-family:'Shippori Mincho',serif;
+  font-weight:700;
+  font-size:26px;
+  margin:0 0 4px;
+  letter-spacing:.04em;
+}
+
+.masthead p{
+  margin:0;
+  font-size:13px;
+  color:#C9D3D9;
+  letter-spacing:.02em;
+}
+
+.status-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:26px 0 14px;
+  font-size:13px;
+  color:var(--ink-soft);
+}
+
+.progress-track{
+  flex:1;
+  height:6px;
+  background:var(--washi-dark);
+  border-radius:3px;
+  margin:0 12px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:var(--hanko);
+  transition:width .3s ease;
+}
+
+.score-pill{
+  font-family:'Shippori Mincho',serif;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.clue-card{
+  background:#fff;
+  border:1px solid var(--washi-dark);
+  border-radius:4px;
+  padding:22px 22px 20px;
+  margin-bottom:6px;
+  position:relative;
+}
+
+.clue-area{
+  display:inline-block;
+  background:var(--washi-dark);
+  color:var(--ink-soft);
+  font-size:12px;
+  font-weight:500;
+  padding:4px 12px;
+  border-radius:2px;
+  margin-bottom:14px;
+  letter-spacing:.02em;
+}
+
+.clue-station{
+  font-size:13px;
+  color:var(--ink-soft);
+  margin-bottom:10px;
+}
+
+.clue-text{
+  font-size:15px;
+  line-height:1.9;
+  color:var(--ink);
+}
+
+.question-text{
+  font-family:'Shippori Mincho',serif;
+  font-size:17px;
+  font-weight:700;
+  text-align:center;
+  margin:22px 0 16px;
+}
+
+.choices{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.choice-btn{
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:14px;
+  font-weight:500;
+  color:var(--ink);
+  background:#fff;
+  border:1px solid var(--washi-dark);
+  border-left:4px solid var(--noren);
+  border-radius:2px;
+  padding:14px 12px;
+  text-align:left;
+  cursor:pointer;
+  line-height:1.4;
+  transition:background .15s ease, transform .1s ease;
+}
+.choice-btn:hover:not(:disabled){
+  background:var(--washi-dark);
+}
+.choice-btn:active:not(:disabled){
+  transform:scale(.98);
+}
+.choice-btn:disabled{
+  cursor:default;
+}
+.choice-btn.correct{
+  background:var(--ok-bg);
+  border-left-color:var(--ok);
+  color:var(--ok);
+  font-weight:700;
+}
+.choice-btn.wrong{
+  background:var(--ng-bg);
+  border-left-color:var(--ng);
+  color:var(--ng);
+}
+
+.feedback{
+  margin-top:18px;
+  padding:16px 18px;
+  border-radius:4px;
+  background:#fff;
+  border:1px solid var(--washi-dark);
+  font-size:13px;
+  line-height:1.7;
+  color:var(--ink-soft);
+  display:none;
+}
+.feedback.show{display:block;}
+.feedback .fb-title{
+  font-family:'Shippori Mincho',serif;
+  font-weight:700;
+  font-size:15px;
+  color:var(--ink);
+  margin-bottom:6px;
+  display:block;
+}
+
+.next-row{
+  margin-top:18px;
+  text-align:center;
+}
+
+.next-btn{
+  font-family:'Shippori Mincho',serif;
+  font-weight:700;
+  font-size:15px;
+  color:var(--washi);
+  background:var(--hanko);
+  border:none;
+  border-radius:3px;
+  padding:12px 34px;
+  cursor:pointer;
+  letter-spacing:.04em;
+  display:none;
+}
+.next-btn.show{display:inline-block;}
+.next-btn:hover{background:var(--hanko-dark);}
+.next-btn:active{transform:scale(.98);}
+
+.result-screen{
+  display:none;
+  text-align:center;
+  padding:20px 0;
+}
+.result-screen.show{display:block;}
+.result-score{
+  font-family:'Shippori Mincho',serif;
+  font-size:44px;
+  font-weight:700;
+  color:var(--hanko);
+  margin:10px 0 4px;
+}
+.result-label{
+  font-size:13px;
+  color:var(--ink-soft);
+  margin-bottom:22px;
+}
+.result-comment{
+  font-family:'Shippori Mincho',serif;
+  font-size:17px;
+  margin-bottom:28px;
+}
+.retry-btn{
+  font-family:'Shippori Mincho',serif;
+  font-weight:700;
+  font-size:15px;
+  color:var(--washi);
+  background:var(--noren);
+  border:none;
+  border-radius:3px;
+  padding:13px 36px;
+  cursor:pointer;
+  letter-spacing:.04em;
+}
+.retry-btn:hover{background:var(--noren-dark);}
+
+.quiz-body{display:block;}
+.quiz-body.hide{display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <h1>東京讃岐うどんクイズ</h1>
+    <p>お店の特徴・修行元だけを読んで、どのうどん屋さんか当てよう</p>
+  </div>
+
+  <div class="quiz-body" id="quizBody">
+    <div class="status-row">
+      <span id="qCount">問題 1 / 20</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:5%"></div></div>
+      <span class="score-pill" id="scorePill">0 点</span>
+    </div>
+
+    <div class="clue-card">
+      <div class="clue-area" id="clueArea">エリア</div>
+      <div class="clue-station" id="clueStation">最寄駅</div>
+      <div class="clue-text" id="clueText">ヒント文</div>
+    </div>
+
+    <div class="question-text">このお店はどこ？</div>
+
+    <div class="choices" id="choices"></div>
+
+    <div class="feedback" id="feedback">
+      <span class="fb-title" id="fbTitle"></span>
+      <span id="fbBody"></span>
+    </div>
+
+    <div class="next-row">
+      <button class="next-btn" id="nextBtn">次の問題へ</button>
+    </div>
+  </div>
+
+  <div class="result-screen" id="resultScreen">
+    <div class="result-label">クイズ終了</div>
+    <div class="result-score" id="finalScore">0 / 20</div>
+    <div class="result-comment" id="finalComment"></div>
+    <button class="retry-btn" id="retryBtn">もう一度チャレンジ</button>
+  </div>
+
+</div>
+
+<script>
+const shops = [
+  {name:"うどん 丸香", area:"神保町・神田", station:"神保町駅 徒歩4分", clue:"電通OBの店主が香川の名店で修行し、2003年に開業。粉問屋のブレンド粉に由来する店名で、東京屈指と評される人気店。いりこ出汁の王道。"},
+  {name:"香川一福 神田本店", area:"神保町・神田", station:"神田駅・小川町駅", clue:"丸亀の老舗うどん店出身の店主が開業。ミシュランビブグルマン3年連続。ノビのあるコシの細麺と、関西寄りの出汁が持ち味。"},
+  {name:"麺匠 釜善（KAMAYOSHI）", area:"神保町・神田", station:"淡路町・小川町・神田駅", clue:"福岡出身の店主が高松の老舗で修行し、2016年開業。「噛む讃岐、飲む博多」がコンセプトのハイブリッドで、あご出汁を使用。"},
+  {name:"讃岐うどん 野らぼー 大手町店", area:"神保町・大手町", station:"大手町駅直結（大手町ビルB2F）", clue:"香川県善通寺市の家庭のうどんがコンセプト。粉・煮干し・醤油を地元から直送。昼はうどん、夜は郷土料理居酒屋になる都内チェーン。"},
+  {name:"讃岐うどん 谷や", area:"人形町", station:"水天宮前駅・人形町駅", clue:"高松出身の店主が別の名店で8年修行し、2010年開業。無添加無化調のかけ出汁と、季節配合の自家製麺が特徴。うどん百名店。"},
+  {name:"日本橋 讃岐うどん ほし野", area:"日本橋", station:"日本橋駅 徒歩約5分", clue:"日本橋の有名天ぷら店の姉妹店。自家製の生麺と、いりこベースの濃厚な関西風出汁が特徴。とり天や肉うどんが人気。"},
+  {name:"親父の製麺所（めりけんや）上野店", area:"上野・千駄木", station:"JR上野駅 改札内", clue:"JR四国グループが直営し、2014年に首都圏進出の一号店として開業。駅の改札内という駅ナカの立地。"},
+  {name:"おにやんま 上野店", area:"上野・千駄木", station:"上野駅", clue:"五反田にある本店の姉妹店。上野駅構内にある立ち食いチェーンで、長時間営業がうれしいポイント。"},
+  {name:"うどん しろおび", area:"上野・千駄木", station:"千駄木駅（谷根千エリア）", clue:"香川県立高等技術学校のうどん専門コースを卒業後、瀬戸内の島で店を経営した店主が、2024年5月に開店。冷たいいりこ出汁が主軸。"},
+  {name:"饂飩 根の津（ねのつ）", area:"上野・千駄木", station:"根津駅 徒歩約3分", clue:"香川の名店出身の店主による一軒。注文を受けてから茹で上げる強いコシとモチモチ感が持ち味で、生醤油うどんや天ぶっかけが人気。"},
+  {name:"讃岐うどん大使 水道橋麺通団", area:"水道橋・飯田橋", station:"水道橋駅 徒歩1分", clue:"讃岐うどんブームの火付け役となった有名店の暖簾分けで、2009年開業。麺は香川の製麺所から生地を毎日仕入れ、店内で仕上げる。"},
+  {name:"TOKYO SUNFLOWER IIDABASHI", area:"水道橋・飯田橋", station:"飯田橋駅 徒歩3分", clue:"本郷三丁目にある店の2号店として2020年開店。店主は上野・五反田でも知られる有名立ち食いチェーン出身。"},
+  {name:"讃岐ブルース 飯田橋", area:"水道橋・飯田橋", station:"飯田橋駅 徒歩3-4分", clue:"中目黒などで飲食店を経営する会社が立ち上げ。熟成中の麺に音楽を聴かせる異色スタイルで、松山の鍋焼きうどんも提供する。"},
+  {name:"讃岐 翔平", area:"新橋・大門・青山・五反田", station:"虎ノ門ヒルズ・新橋駅", clue:"元愛媛県内の料亭で働いていた店主が、2024年5月に開業した新鋭店。伊吹いりこで出汁を取り、麺はすべて手作り。店名は店主の息子さんの名前から。"},
+  {name:"自家製さぬきうどんと肉 甚三 大門店", area:"新橋・大門・青山・五反田", station:"大門駅・浜松町駅", clue:"神保町の有名店出身の店主が2016年開店。粉・醤油・和三盆糖などを香川から取り寄せ、肉は千葉産ブランド豚を使用。"},
+  {name:"手打うどん いわしや 青山店", area:"新橋・大門・青山・五反田", station:"青山一丁目駅直結", clue:"香川で修行した職人が兵庫・西宮で本店を開業。青山店は2018年に出店。極太・強コシの名物麺で、うどん百名店に3期連続選出。"},
+  {name:"おにやんま 五反田本店", area:"新橋・大門・青山・五反田", station:"五反田駅西口 徒歩1分", clue:"丸亀市出身の店主が2010年に創業。都内チェーン展開の元祖となった立ち食い店で、うどん百名店の常連。"},
+  {name:"かおりひめ", area:"新橋・大門・青山・五反田", station:"新橋駅（銀座口）徒歩約3分", clue:"香川県と愛媛県が共同で運営するアンテナショップ内にある、公認の郷土料理店。本場のいりこ出汁が手軽に味わえる。"},
+  {name:"讃岐うどん いわい", area:"十条・赤羽", station:"十条駅", clue:"店主が香川の有名店で修行。本家に倣い「あつあつ」「ひやひや」「ひやあつ」の3種を用意。板橋に姉妹店の製麺所もある。"},
+  {name:"手打うどん すみた", area:"十条・赤羽", station:"JR赤羽駅東口 徒歩約9分", clue:"本場香川で修業した先代の味を、二代目が引き継ぐ一軒。注文が入ってから茹で上げる本格派で、夜は讃岐風おでんや日本酒も楽しめる。"}
+];
+
+let order = [];
+let qIndex = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function buildChoices(correctIdx){
+  const others = shops.map((s,i)=>i).filter(i=>i!==correctIdx);
+  const picked = shuffle(others).slice(0,3);
+  const opts = shuffle([correctIdx, ...picked]);
+  return opts;
+}
+
+function startQuiz(){
+  order = shuffle(shops.map((s,i)=>i));
+  qIndex = 0;
+  score = 0;
+  document.getElementById('resultScreen').classList.remove('show');
+  document.getElementById('quizBody').classList.remove('hide');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answered = false;
+  const shopIdx = order[qIndex];
+  const shop = shops[shopIdx];
+
+  document.getElementById('qCount').textContent = "問題 " + (qIndex+1) + " / " + order.length;
+  document.getElementById('progressFill').style.width = ((qIndex+1)/order.length*100) + "%";
+  document.getElementById('scorePill').textContent = score + " 点";
+
+  document.getElementById('clueArea').textContent = shop.area;
+  document.getElementById('clueStation').textContent = shop.station;
+  document.getElementById('clueText').textContent = shop.clue;
+
+  const opts = buildChoices(shopIdx);
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = "";
+  opts.forEach(idx=>{
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = shops[idx].name;
+    btn.addEventListener('click', ()=>selectAnswer(idx, shopIdx, btn));
+    choicesEl.appendChild(btn);
+  });
+
+  document.getElementById('feedback').classList.remove('show');
+  document.getElementById('nextBtn').classList.remove('show');
+}
+
+function selectAnswer(pickedIdx, correctIdx, btnEl){
+  if(answered) return;
+  answered = true;
+
+  const buttons = document.querySelectorAll('.choice-btn');
+  buttons.forEach(b=>b.disabled = true);
+
+  const isCorrect = pickedIdx === correctIdx;
+  if(isCorrect){
+    score++;
+    btnEl.classList.add('correct');
+  } else {
+    btnEl.classList.add('wrong');
+    buttons.forEach(b=>{
+      if(b.textContent === shops[correctIdx].name){
+        b.classList.add('correct');
+      }
+    });
+  }
+
+  document.getElementById('scorePill').textContent = score + " 点";
+
+  const shop = shops[correctIdx];
+  document.getElementById('fbTitle').textContent = (isCorrect ? "正解！ " : "不正解。正解は ") + shop.name;
+  document.getElementById('fbBody').textContent = shop.station + "／" + shop.area;
+  document.getElementById('feedback').classList.add('show');
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  qIndex++;
+  if(qIndex >= order.length){
+    showResult();
+  } else {
+    renderQuestion();
+  }
+});
+
+function showResult(){
+  document.getElementById('quizBody').classList.add('hide');
+  const total = order.length;
+  document.getElementById('finalScore').textContent = score + " / " + total;
+  let comment;
+  const rate = score/total;
+  if(rate === 1) comment = "満点！うどん屋の達人ですね。";
+  else if(rate >= 0.7) comment = "かなりの東京讃岐うどん通です。";
+  else if(rate >= 0.4) comment = "なかなかの成績。もっと食べ歩きたくなりますね。";
+  else comment = "次はもう少し食べ歩いてから挑戦してみましょう。";
+  document.getElementById('finalComment').textContent = comment;
+  document.getElementById('resultScreen').classList.add('show');
+}
+
+document.getElementById('retryBtn').addEventListener('click', startQuiz);
+
+startQuiz();
+</script>
+</body>
+</html>
